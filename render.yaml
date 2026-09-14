@@ -39,9 +39,15 @@ services:
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
       - key: ML_SERVICE_URL
-        value: https://smart-finance-ml.onrender.com
+        fromService:
+          type: web
+          name: smart-finance-ml
+          envVarKey: RENDER_EXTERNAL_URL
       - key: FRONTEND_URL
-        value: https://smart-finance-app.onrender.com
+        fromService:
+          type: web
+          name: smart-finance-app
+          envVarKey: RENDER_EXTERNAL_URL
       - key: INTERNAL_API_SECRET
         generateValue: true
 
@@ -69,7 +75,10 @@ services:
     staticPublishPath: "./frontend/dist"
     envVars:
       - key: VITE_API_URL
-        value: https://smart-finance-api.onrender.com/api/v1
+        fromService:
+          type: web
+          name: smart-finance-api
+          envVarKey: RENDER_EXTERNAL_URL
     routes:
       - type: rewrite
         source: /*
