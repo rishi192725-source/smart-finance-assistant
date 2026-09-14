@@ -96,15 +96,62 @@ export const predictSpending = async (req: Request, res: Response, next: NextFun
 
     console.log(`[ML Prediction] Sending historical data to Python:`, historical_monthly_totals);
 
-    const response = await fetch(`${ML_SERVICE_URL}/api/ml/predict`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${INTERNAL_API_SECRET}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ historical_monthly_totals })
-    });
+    let predictionData;
+    try {
+      const response = await fetch(`${ML_SERVICE_URL}/api/ml/predict`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${INTERNAL_API_SECRET}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ historical_monthly_totals })
+      });
 
-    if (!response.ok) return next(new AppError('ML service error', 500));
-    const data = await response.json();
-    res.status(200).json(data);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[ML Prediction] Service returned ${response.status}:`, errorText);
+        throw new Error('ML Service returned an error');
+      }
+
+      const responseJson = await response.json();
+      predictionData = responseJson.data;
+    } catch (error) {
+      console.warn('[ML Prediction] Falling back to local calculation due to service failure:', error);
+      
+      if (historical_monthly_totals.length < 2) {
+        predictionData = { prediction: null, reason: 'INSUFFICIENT_HISTORY' };
+      } else {
+        // Fallback: 3-Month WMA
+        const recent_totals = historical_monthly_totals.slice(-3);
+        const weights = recent_totals.map((_, i) => i + 1);
+        const total_weight = weights.reduce((a, b) => a + b, 0);
+        const wma = recent_totals.reduce((sum, val, i) => sum + val * weights[i], 0) / total_weight;
+
+        // Fallback: Linear Trendline
+        const n = historical_monthly_totals.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        for (let i = 0; i < n; i++) {
+          sumX += i;
+          sumY += historical_monthly_totals[i];
+          sumXY += i * historical_monthly_totals[i];
+          sumX2 += i * i;
+        }
+        
+        let slope = 0;
+        const denominator = (n * sumX2 - sumX * sumX);
+        if (denominator !== 0) {
+          slope = (n * sumXY - sumX * sumY) / denominator;
+        }
+        
+        let final_prediction = wma + slope;
+        final_prediction = Math.max(0.0, Math.round(final_prediction * 100) / 100);
+        
+        predictionData = {
+          prediction: final_prediction,
+          reason: 'SUCCESS',
+          trend_slope: Math.round(slope * 100) / 100
+        };
+      }
+    }
+
+    res.status(200).json({ status: 'success', data: predictionData });
   } catch (error) {
     next(error);
   }
