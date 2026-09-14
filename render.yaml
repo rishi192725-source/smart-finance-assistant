@@ -17,6 +17,8 @@ services:
     buildCommand: "cd backend && npm install && npm run build && npx prisma generate"
     startCommand: "cd backend && npm run start:prod"
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
@@ -51,6 +53,8 @@ services:
     buildCommand: "cd backend/ml_service && pip install -r requirements.txt"
     startCommand: "cd backend/ml_service && uvicorn main:app --host 0.0.0.0"
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.6
       - key: INTERNAL_API_SECRET
         fromService:
           type: web
@@ -65,6 +69,8 @@ services:
     buildCommand: "cd backend && npm install && npm run build"
     startCommand: "cd backend && npm run start:worker"
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
