@@ -1,7 +1,5 @@
 databases:
   - name: smart-finance-db
-    databaseName: smart_finance
-    user: postgres
     plan: free # Change to starter for production
 
 services:
