@@ -1,0 +1,92 @@
+databases:
+  - name: smart-finance-db
+    databaseName: smart_finance
+    user: postgres
+    plan: free # Change to starter for production
+
+  - name: smart-finance-redis
+    type: redis
+    plan: free
+
+services:
+  # Node.js Backend
+  - type: web
+    name: smart-finance-api
+    env: node
+    buildCommand: "cd backend && npm install && npm run build && npx prisma generate"
+    startCommand: "cd backend && npm run start:prod"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-finance-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: smart-finance-redis
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: ML_SERVICE_URL
+        value: https://smart-finance-ml.onrender.com
+      - key: FRONTEND_URL
+        value: https://smart-finance-app.onrender.com
+      - key: INTERNAL_API_SECRET
+        generateValue: true
+
+  # Python ML Service
+  - type: web
+    name: smart-finance-ml
+    env: python
+    buildCommand: "cd backend/ml_service && pip install -r requirements.txt"
+    startCommand: "cd backend/ml_service && uvicorn main:app --host 0.0.0.0"
+    envVars:
+      - key: INTERNAL_API_SECRET
+        fromService:
+          type: web
+          name: smart-finance-api
+          envVarKey: INTERNAL_API_SECRET
+
+  # Background Worker (Node.js)
+  - type: worker
+    name: smart-finance-worker
+    env: node
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && npm run start:worker"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-finance-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: smart-finance-redis
+          property: connectionString
+      - key: INTERNAL_API_SECRET
+        fromService:
+          type: web
+          name: smart-finance-api
+          envVarKey: INTERNAL_API_SECRET
+
+  # React Frontend
+  - type: web
+    name: smart-finance-app
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        value: https://smart-finance-api.onrender.com/api/v1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
