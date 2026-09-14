@@ -13,6 +13,7 @@ services:
   - type: web
     name: smart-finance-api
     env: node
+    plan: free
     buildCommand: "cd backend && npm install && npm run build && npx prisma generate"
     startCommand: "cd backend && npm run start:prod"
     envVars:
@@ -46,6 +47,7 @@ services:
   - type: web
     name: smart-finance-ml
     env: python
+    plan: free
     buildCommand: "cd backend/ml_service && pip install -r requirements.txt"
     startCommand: "cd backend/ml_service && uvicorn main:app --host 0.0.0.0"
     envVars:
@@ -59,6 +61,7 @@ services:
   - type: worker
     name: smart-finance-worker
     env: node
+    plan: free
     buildCommand: "cd backend && npm install && npm run build"
     startCommand: "cd backend && npm run start:worker"
     envVars:
