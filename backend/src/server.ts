@@ -13,7 +13,14 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow if no origin (e.g. Postman) or if it matches FRONTEND_URL (ignoring trailing slash)
+      if (!origin || origin.replace(/\/$/, '') === env.FRONTEND_URL.replace(/\/$/, '')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
