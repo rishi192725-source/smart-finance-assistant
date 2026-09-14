@@ -4,11 +4,13 @@ databases:
     user: postgres
     plan: free # Change to starter for production
 
-  - name: smart-finance-redis
-    type: redis
-    plan: free
-
 services:
+  # Redis Cache
+  - type: redis
+    name: smart-finance-redis
+    plan: free
+    ipAllowList: [] # empty allows all, or can omit
+
   # Node.js Backend
   - type: web
     name: smart-finance-api
@@ -23,7 +25,8 @@ services:
           name: smart-finance-db
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
+          type: redis
           name: smart-finance-redis
           property: connectionString
       - key: JWT_ACCESS_SECRET
@@ -68,7 +71,8 @@ services:
           name: smart-finance-db
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
+          type: redis
           name: smart-finance-redis
           property: connectionString
       - key: INTERNAL_API_SECRET
