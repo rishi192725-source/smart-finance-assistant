@@ -15,6 +15,7 @@ import {
 import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Target, PiggyBank, AlertCircle } from 'lucide-react';
 import { SpendingForecastCard } from '../components/SpendingForecastCard';
 import { AccountModal } from '../components/AccountModal';
+import { BudgetModal } from '../components/BudgetModal';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6666'];
 
@@ -27,6 +28,7 @@ export const Dashboard = () => {
   const [goals, setGoals] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -64,6 +66,11 @@ export const Dashboard = () => {
         isOpen={isAccountModalOpen} 
         onClose={() => setIsAccountModalOpen(false)} 
         onAccountAdded={fetchData} 
+      />
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        onBudgetAdded={fetchData}
       />
 
       <div className="flex justify-between items-center mb-8">
@@ -181,9 +188,17 @@ export const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         {/* Budgets */}
         <div className="bg-white p-6 shadow-sm border border-slate-200/60 rounded-2xl">
-          <div className="flex items-center gap-2 mb-6">
-            <Target className="text-blue-600" size={24} />
-            <h2 className="text-lg font-bold text-slate-900">Monthly Budgets</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Target className="text-blue-600" size={24} />
+              <h2 className="text-lg font-bold text-slate-900">Monthly Budgets</h2>
+            </div>
+            <button 
+              onClick={() => setIsBudgetModalOpen(true)}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              + Add
+            </button>
           </div>
           
           <div className="space-y-6">
