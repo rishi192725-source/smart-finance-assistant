@@ -1,4 +1,4 @@
-import api from './index';
+import api from './axios';
 
 export const getRecurringExpenses = async () => {
   const response = await api.get('/recurring-expenses');
