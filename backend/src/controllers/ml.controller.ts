@@ -145,8 +145,10 @@ export const predictSpending = async (req: Request, res: Response, next: NextFun
         
         predictionData = {
           prediction: final_prediction,
-          reason: 'SUCCESS',
-          trend_slope: Math.round(slope * 100) / 100
+          method: 'weighted_moving_average',
+          fallbackUsed: true,
+          trend_slope: Math.round(slope * 100) / 100,
+          reason: 'SUCCESS'
         };
       }
     }

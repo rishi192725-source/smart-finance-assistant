@@ -10,6 +10,9 @@ export const SpendingForecastCard = () => {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [reason, setReason] = useState<string>('');
   const [trendSlope, setTrendSlope] = useState<number | null>(null);
+  const [method, setMethod] = useState<string>('');
+  const [evaluationMetric, setEvaluationMetric] = useState<string>('');
+  const [fallbackUsed, setFallbackUsed] = useState<boolean>(true);
   
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -34,6 +37,9 @@ export const SpendingForecastCard = () => {
       setPrediction(data.prediction);
       setReason(data.reason);
       setTrendSlope(data.trend_slope ?? null);
+      setMethod(data.method || 'Unknown Method');
+      setFallbackUsed(data.fallbackUsed ?? true);
+      setEvaluationMetric(data.evaluation_metric || '');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch prediction');
     } finally {
@@ -126,8 +132,10 @@ export const SpendingForecastCard = () => {
               </div>
             )}
             
+            
             <p className="text-xs text-slate-400 mt-6 mt-auto">
-              Based on a 3-month weighted moving average & linear momentum.
+              Model: {method.replace(/_/g, ' ').toUpperCase()} {fallbackUsed ? '(Fallback)' : ''}
+              {evaluationMetric && ` • ${evaluationMetric}`}
             </p>
           </div>
         )}
