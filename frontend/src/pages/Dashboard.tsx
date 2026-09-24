@@ -16,6 +16,7 @@ import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Target, PiggyBank
 import { SpendingForecastCard } from '../components/SpendingForecastCard';
 import { AccountModal } from '../components/AccountModal';
 import { BudgetModal } from '../components/BudgetModal';
+import { GoalModal } from '../components/GoalModal';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6666'];
 
@@ -29,6 +30,7 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -71,6 +73,11 @@ export const Dashboard = () => {
         isOpen={isBudgetModalOpen}
         onClose={() => setIsBudgetModalOpen(false)}
         onBudgetAdded={fetchData}
+      />
+      <GoalModal
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
+        onGoalAdded={fetchData}
       />
 
       <div className="flex justify-between items-center mb-8">
@@ -236,9 +243,17 @@ export const Dashboard = () => {
 
         {/* Savings Goals */}
         <div className="bg-white p-6 shadow-sm border border-slate-200/60 rounded-2xl">
-          <div className="flex items-center gap-2 mb-6">
-            <PiggyBank className="text-green-600" size={24} />
-            <h2 className="text-lg font-bold text-slate-900">Savings Goals</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <PiggyBank className="text-green-600" size={24} />
+              <h2 className="text-lg font-bold text-slate-900">Savings Goals</h2>
+            </div>
+            <button 
+              onClick={() => setIsGoalModalOpen(true)}
+              className="text-sm text-green-600 hover:text-green-700 font-medium"
+            >
+              + Add
+            </button>
           </div>
           
           <div className="space-y-6">
