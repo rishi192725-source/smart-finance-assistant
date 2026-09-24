@@ -76,6 +76,12 @@ export const Dashboard = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Overview</h1>
         <div className="flex gap-3">
+          <Link 
+            to="/recurring-expenses" 
+            className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-4 py-2 rounded-lg shadow-sm transition-colors font-medium"
+          >
+            Recurring
+          </Link>
           <button 
             onClick={() => setIsAccountModalOpen(true)}
             className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg shadow-sm transition-colors font-medium"
